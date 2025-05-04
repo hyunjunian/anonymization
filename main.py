@@ -69,4 +69,5 @@ if __name__ == "__main__":
             with open(f'./dipper.jsonl', 'a', encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
             end = time.time()
+            i += 1
             print(f"{i}: {end - start} seconds")
