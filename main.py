@@ -1,3 +1,4 @@
+import json
 import time
 import torch
 from transformers import T5Tokenizer, T5ForConditionalGeneration
@@ -53,11 +54,19 @@ class DipperParaphraser(object):
         return output_text
 
 if __name__ == "__main__":
+    # print(torch.cuda.is_available())
     dp = DipperParaphraser()
 
-    prompt = "In a shocking finding, scientist discovered a herd of unicorns living in a remote valley."
-    input_text = "They have never been known to mingle with humans. Today, it is believed these unicorns live in an unspoilt environment which is surrounded by mountains. Its edge is protected by a thick wattle of wattle trees, giving it a majestic appearance. Along with their so-called miracle of multicolored coat, their golden coloured feather makes them look like mirages. Some of them are rumored to be capable of speaking a large amount of different languages. They feed on elk and goats as they were selected from those animals that possess a fierceness to them, and can \"eat\" them with their long horns."
-
-    print(f"Input = {prompt} <sent> {input_text} </sent>\n")
-    output_l60_sample = dp.paraphrase(input_text, lex_diversity=60, order_diversity=0, prefix=prompt, do_sample=True, top_p=0.75, top_k=None, max_length=512)
-    print(f"Output (Lexical diversity = 60, Sample p = 0.75) = {output_l60_sample}\n")
+    with open('./initial.jsonl', 'r') as jsonl_file:
+        i = 0
+        for json_str in jsonl_file.readlines():
+            start = time.time()
+            row = json.loads(json_str)
+            for idx in range(3):
+                input_text = row['texts'][-1]['text']
+                output_text = dp.paraphrase(input_text, lex_diversity=60, order_diversity=20, do_sample=True, top_p=0.75, top_k=None, max_length=512)
+                row['texts'].append({"text": output_text})
+            with open(f'./dipper.jsonl', 'a', encoding="utf-8") as f:
+                f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            end = time.time()
+            print(f"{i}: {end - start} seconds")
