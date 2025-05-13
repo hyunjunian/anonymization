@@ -57,16 +57,16 @@ if __name__ == "__main__":
     # print(torch.cuda.is_available())
     dp = DipperParaphraser()
 
-    with open('./dipper-hard.jsonl', 'r') as jsonl_file:
+    with open('./hard-test.jsonl', 'r') as jsonl_file:
         i = 0
         for json_str in jsonl_file.readlines():
             start = time.time()
             row = json.loads(json_str)
-            for idx in range(3):
+            for idx in range(5):
                 input_text = row['texts'][-1]['text']
                 output_text = dp.paraphrase(input_text, lex_diversity=60, order_diversity=20, do_sample=True, top_p=0.75, top_k=None, max_length=512)
                 row['texts'].append({"text": output_text})
-            with open(f'./dipper-hard-1.jsonl', 'a', encoding="utf-8") as f:
+            with open(f'./hard-test_dipper.jsonl', 'a', encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
             end = time.time()
             i += 1
